@@ -1,0 +1,84 @@
+{include="header"}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#b_eliminar").click(function (event) {
+            event.preventDefault();
+            if (confirm("¿Realmente desea eliminar el proveedor?"))
+            {
+                window.location.href = '{$fsc->url()}&delete={$fsc->proveedor_sms->idproveedor}';
+            }
+        });
+    });
+</script>
+
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="page-header">
+                <h1>
+                    <a class="btn btn-xs btn-default" href="{$fsc->url()}">
+                        <span class="glyphicon glyphicon-arrow-left"></span>
+                    </a>
+                    Editar proveedor SMS {$fsc->proveedor_sms->descripcion}
+                </h1>
+                El formato de url de los proveedores suele ser así:<br/>
+                https//www.proveedorsip.com/myaccount/sendsms.php&<b>username</b>=usuario&<b>password</b>=password&<b>from</b>=de&<b>to</b>=destino&<b>api</b>=api_id&<b>text</b>=textodelmensaje
+            </div>
+        </div>
+    </div>
+    <form action="{$fsc->proveedor_sms->url()}" method="post" class="form">
+        <div class="row">
+            <div class="col-sm-12 text-right">
+                <div class="btn-group">
+                    {if="$fsc->allow_delete"}
+                    <a id="b_eliminar" class="btn btn-sm btn-danger" href="#" title="Eliminar proveedor">
+                        <span class="glyphicon glyphicon-trash"></span>
+                        <span class="hidden-xs hidden-sm">&nbsp; Eliminar</span>
+                    </a>
+                    {/if}
+                    <button class="btn btn-sm btn-primary" type="button" onclick="this.disabled = true;this.form.submit();">
+                        <span class="glyphicon glyphicon-floppy-disk"></span>
+                        <span class="hidden-xs hidden-sm">&nbsp; Guardar</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-8">
+                URL
+                <input type="text" name="url" class="form-control" required="" value="{$fsc->proveedor_sms->url}" autocomplete="off" autofocus="" disabled/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-3">
+                Usuario
+                <input type="text" name="usuario" class="form-control" required="" value="{$fsc->proveedor_sms->usuario}" autocomplete="off" autofocus=""/>
+            </div>
+            <div class="col-sm-3">
+                Contraseña
+                <input type="password" name="password" class="form-control" required="" value="{$fsc->proveedor_sms->password}" autocomplete="off" autofocus=""/>
+            </div>
+            <div class="col-sm-3">
+                Número de teléfono
+                <input type="text" name="de" class="form-control" required="" value="{$fsc->proveedor_sms->de}" autocomplete="off" autofocus=""/>
+            </div>
+            <div class="col-sm-3">
+                Api ID ( opcional )
+               <input type="text" name="api_id" class="form-control" value="{$fsc->proveedor_sms->api_id}" autocomplete="off" autofocus=""/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                Así queda la url:<br/>
+                <a href="{$fsc->proveedor_sms->url}?username={$fsc->proveedor_sms->usuario}&password={$fsc->proveedor_sms->password}&from={$fsc->proveedor_sms->de}&to=+34666530997&text=hola" target="_blank">{$fsc->proveedor_sms->url}?username={$fsc->proveedor_sms->usuario}&password=***********&from={$fsc->proveedor_sms->de}&to=+34666530997&text=hola</a>
+                
+            </div>
+        </div>
+
+    </form>
+</div>
+
+
+{include="footer"}

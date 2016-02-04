@@ -1,0 +1,111 @@
+{include="header"}
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="page-header">
+                <h1>
+                    Proveedores SMS
+                    <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
+                        <span class="glyphicon glyphicon-refresh"></span>
+                    </a>
+                    <a class="btn btn-xs btn-success" href="#" data-toggle="modal" data-target="#nuevo_proveedor">
+                        <span class="glyphicon glyphicon-plus"></span>
+                        <span class="hidden-xs">&nbsp; Nuevo</span>
+                    </a>
+                </h1>
+                <p class="help-block">
+                    <span class="glyphicon glyphicon-exclamation-sign"></span>
+                    <b>Esta sección está en desarrollo</b>. Todavía no se recomienda su uso.
+                </p>
+                <p class="help-block">
+                    Desde aquí puedes gestionar tus proveedores SMS.De momento sólo está provado freevoipdeal ( Red Betamax ).
+                    Si quieres algún otro, <a href="http://www.facturascripts.com" target="_blank">comunicanoslo</a> y haremos lo posible para añadirlo.
+                </p>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>URL</th>
+                            <th>Usuario</th>
+                            <th>De</th>
+                            <th>Api ID</th>
+                        </tr>
+                    </thead>
+                    {loop="$fsc->resultados"}
+                    <tr class="clickableRow" href="{$value->url()}">
+                        <td><a href="{$value->url()}">{$value->idproveedor}</a></td>
+                        <td>{$value->descripcion}</td>
+                        <td>{$value->url}</td>
+                        <td>{$value->usuario}</td>
+                        <td>{$value->de}</td>
+                        <td>{$value->api_id}</td>
+                    </tr>
+                    {else}
+                    <tr class="warning">
+                        <td colspan="6">Sin resultados.</td>
+                    </tr>
+                    {/loop}
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form action="{$fsc->url()}" method="post" class="form">
+    <input type="hidden" name="nuevo" value="TRUE"/>
+    <div class="modal" id="nuevo_proveedor" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">
+                        Nuevo proveedor
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        Descripción
+                        <input type="text" name="descripcion" class="form-control" required="" autocomplete="off" autofocus=""/>
+                    </div>
+                    <div class="form-group">
+                        Servidor
+                        <select name="url" class="form-control">
+                            <option value="https://www.freevoipdeal.com/myaccount/sendsms.php">FreeVoipDeal</option>
+                            <option value="api.clickatell.com/http/sendmsg">Clickatell</option>  
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        Usuario
+                        <input type="text" name="usuario" class="form-control" required="" autocomplete="off" autofocus=""/>
+                    </div>
+                    <div class="form-group">
+                        Contraseña
+                        <input type="password" name="password" class="form-control" required="" autocomplete="off" autofocus=""/>
+                    </div>
+                    <div class="form-group">
+                        Número teléfono ( desde el que se envía )
+                        <input type="text" name="de" class="form-control" required="" autocomplete="off" autofocus=""/>
+                    </div>
+                    <div class="form-group">
+                        Api ID ( opcional )
+                        <input type="text" name="api_id" class="form-control" autocomplete="off" autofocus=""/>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-sm btn-primary" type="submit">
+                        <span class="glyphicon glyphicon-floppy-disk"></span>
+                        <span class="hidden-xs">&nbsp; Guardar</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+{include="footer"}
