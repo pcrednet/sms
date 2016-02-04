@@ -115,15 +115,15 @@ class enviar_sms extends fs_controller
         $fsext->params = '&servicio=TRUE';
         $fsext->save();
 
-        $fsext = new fs_extension();
-        $fsext->name = 'enviar_sms_pedido';
-        $fsext->from = __CLASS__;
-        $fsext->to = 'ventas_pedido';
-        $fsext->type = 'button';
-        $fsext->text = '<span class="glyphicon glyphicon-phone" aria-hidden="true"></span>'
-                . '<span class="hidden-xs">&nbsp; Enviar SMS</span>';
-        $fsext->params = '&pedido=TRUE';
-        $fsext->save();
+        $fsext2 = new fs_extension();
+        $fsext2->name = 'enviar_sms_pedido';
+        $fsext2->from = __CLASS__;
+        $fsext2->to = 'ventas_pedido';
+        $fsext2->type = 'button';
+        $fsext2->text = '<span class="glyphicon glyphicon-check" aria-hidden="true"></span>'
+                . '<span class="hidden-xs">&nbsp; Pagar...</span>';
+        $fsext2->params = '&pedido=TRUE';
+        $fsext2->save();
     }
 
     private function agrega_detalle()
