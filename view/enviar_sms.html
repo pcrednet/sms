@@ -1,23 +1,14 @@
-{include="header"}
-
 <form action="{$fsc->url()}&id={$fsc->id}&{$fsc->documento}=TRUE" method="post" class="form">
    <input type="hidden" name="enviar" value="TRUE"/>
-   <div class="container">
+   <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+         <span aria-hidden="true">&times;</span>
+      </button>
+      <h4 class="modal-title">Enviar SMS</h4>
+   </div>
+   <div class="modal-body">
       <div class="row">
-         <div class="col-sm-6">
-            <div class="page-header">
-               <h1>
-                  <a class="btn btn-xs btn-default" href="{$fsc->documento_url}">
-                     <span class="glyphicon glyphicon-arrow-left"></span>
-                  </a>
-                  Enviar SMS
-               </h1>
-               Desde aquí puedes enviar un mensaje a tu cliente
-            </div>
-         </div>
-      </div>
-      <div class="row">
-         <div class="col-sm-6">
+         <div class="col-sm-12">
             <div class="form-group">
                Selecciona <a href="index.php?page=proveedores_sms">proveedor</a> para envío:
                <select name="proveedor" class="form-control">
@@ -69,5 +60,3 @@
 <script>
    $('#mensaje').countSms('#sms-counter');
 </script>
-
-{include="footer"}

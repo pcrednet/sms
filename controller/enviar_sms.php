@@ -124,7 +124,7 @@ class enviar_sms extends fs_controller
       $fsext2->name = 'enviar_sms_pedido';
       $fsext2->from = __CLASS__;
       $fsext2->to = 'ventas_pedido';
-      $fsext2->type = 'button';
+      $fsext2->type = 'modal';
       $fsext2->text = '<span class="glyphicon glyphicon-phone" aria-hidden="true"></span>'
               . '<span class="hidden-xs">&nbsp; SMS</span>';
       $fsext2->params = '&pedido=TRUE';
