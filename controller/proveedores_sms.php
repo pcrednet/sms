@@ -120,6 +120,30 @@ class proveedores_sms extends fs_controller
         }
 
         $this->resultados = $proveedor->all();
+        $this->share_extensions();
     }
+    
+    private function share_extensions()
+   {
+      $fsext2 = new fs_extension();
+      $fsext2->name = 'enviar_sms_servicio';
+      $fsext2->from = 'enviar_sms';
+      $fsext2->to = 'ventas_servicio';
+      $fsext2->type = 'modal';
+      $fsext2->text = '<span class="glyphicon glyphicon-phone" aria-hidden="true"></span>'
+              . '<span class="hidden-xs">&nbsp; SMS</span>';
+      $fsext2->params = '&servicio=TRUE';
+      $fsext2->save();
+
+      $fsext2 = new fs_extension();
+      $fsext2->name = 'enviar_sms_pedido';
+      $fsext2->from = 'enviar_sms';
+      $fsext2->to = 'ventas_pedido';
+      $fsext2->type = 'modal';
+      $fsext2->text = '<span class="glyphicon glyphicon-phone" aria-hidden="true"></span>'
+              . '<span class="hidden-xs">&nbsp; SMS</span>';
+      $fsext2->params = '&pedido=TRUE';
+      $fsext2->save();
+   }
 
 }

@@ -47,8 +47,11 @@ class enviar_sms extends fs_controller
    
    protected function private_core()
    {
-      $this->provsms = new proveedor_sms();
+      $this->provsms = new proveedor_sms;
       $this->documento = FALSE;
+      $this->telefono = '';
+      $this->mensaje = '';
+      
       $this->documento_url = $this->url();
       $cliente = new cliente();
       
@@ -78,25 +81,51 @@ class enviar_sms extends fs_controller
          }
       }
 
-      if( isset($_POST['enviar']) )
+      if (isset($_POST['enviar']))
       {
-         $provsms = $this->provsms->get($_POST['proveedor']);
-         if($provsms)
+         $this->provsms = FALSE;
+         $provsms = new proveedor_sms();
+         $this->provsms = $provsms->get($_POST['proveedor']);
+         if ($this->provsms)
          {
-            $this->telefono = $_POST['telefono'];
-            $this->mensaje = $_POST['mensaje'];
-            if($this->provsms->enviar_sms($this->telefono, $this->mensaje))
+            if (!$this->telefono = $_POST['telefono'] == '+34')
             {
-               $this->new_message('Mensaje enviado');
-               
-               if($servicio)
+               $this->telefono = $_POST['telefono'];
+               $this->mensaje = $_POST['mensaje'];
+               if (strpos($this->provsms->url, 'freevoipdeal'))
                {
-                  $this->agrega_detalle($servicio);
+                  if ($this->sms_freevoipdeal())
+                  {
+                     $this->new_message('Mensaje desde Freevoipdeal enviado');
+                     if ($servicio)
+                     {
+                        $this->agrega_detalle($servicio);
+                     }
+                  }
+                  else
+                  {
+                     $this->new_error_msg('Error al enviar el mensaje');
+                  }
+               }
+               else if (strpos($this->provsms->url, 'clickatell'))
+               {
+                  if ($this->sms_clickatell())
+                  {
+                     $this->new_message('Mensaje desde Clickatell enviado');
+                     if ($servicio)
+                     {
+                        $this->agrega_detalle($servicio);
+                     }
+                  }
+                  else
+                  {
+                     $this->new_error_msg('Error al enviar el mensaje');
+                  }
                }
             }
             else
             {
-               $this->new_error_msg('Error al enviar el mensaje');
+               $this->new_error_msg('No has introducido ningún número.');
             }
          }
          else
@@ -104,31 +133,6 @@ class enviar_sms extends fs_controller
             $this->new_error_msg('Proveedor de SMS no encontrado.');
          }
       }
-
-      $this->share_extensions();
-   }
-
-   private function share_extensions()
-   {
-      $fsext = new fs_extension();
-      $fsext->name = 'enviar_sms_servicio';
-      $fsext->from = __CLASS__;
-      $fsext->to = 'ventas_servicio';
-      $fsext->type = 'button';
-      $fsext->text = '<span class="glyphicon glyphicon-phone" aria-hidden="true"></span>'
-              . '<span class="hidden-xs">&nbsp; SMS</span>';
-      $fsext->params = '&servicio=TRUE';
-      $fsext->save();
-
-      $fsext2 = new fs_extension();
-      $fsext2->name = 'enviar_sms_pedido';
-      $fsext2->from = __CLASS__;
-      $fsext2->to = 'ventas_pedido';
-      $fsext2->type = 'modal';
-      $fsext2->text = '<span class="glyphicon glyphicon-phone" aria-hidden="true"></span>'
-              . '<span class="hidden-xs">&nbsp; SMS</span>';
-      $fsext2->params = '&pedido=TRUE';
-      $fsext2->save();
    }
 
    private function agrega_detalle(&$servicio)
@@ -145,6 +149,79 @@ class enviar_sms extends fs_controller
       else
       {
          $this->new_error_msg('Imposible guardar el detalle.');
+      }
+   }
+   
+   public function sms_freevoipdeal()
+   {
+      //para test comentar la otra url
+      //$url = 'http://localhost/facturascripts/plugins/sms/test_sms';
+
+      $url = $this->provsms->url . "?username=" . $this->provsms->usuario
+              . "&password=" . $this->provsms->password
+              . "&from=" . $this->provsms->de
+              . "&to=" . $this->telefono
+              . "&text=" . rawurlencode($this->mensaje);
+      
+      $ch = curl_init();
+      curl_setopt($ch, CURLOPT_URL, $url);
+      curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13");
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+      
+      $result = curl_exec($ch);
+      curl_close($ch);
+      
+      
+      if($result)
+      {
+         if (strpos($result, 'success'))
+         {
+            return true;
+            $this->new_message($result);
+         }
+         else
+         {
+            $this->new_error_msg($result-'<br />'.$url);
+         }
+      }
+      else
+      {
+         return FALSE;
+      }
+         
+   }
+
+   public function sms_clickatell()
+   {
+      $url = $this->provsms->url . "?user=" . $this->provsms->usuario
+              . "&password=" . $this->provsms->password
+              . "&api_id=" . $this->provsms->api_id
+              . "&to=" . $this->telefono
+              . "&text=" . rawurlencode($this->mensaje); 
+      
+      $ch = curl_init();
+      curl_setopt($ch, CURLOPT_URL, $url);
+      curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13");
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+      
+      $result = curl_exec($ch);
+      curl_close($ch);
+      
+     if($result)
+      {
+         if (strpos($result, 'ID'))
+         {
+            return true;
+            $this->new_message($result);
+         }
+         else
+         {
+            $this->new_error_msg($result-'<br />'.$url);
+         }
+      }
+      else
+      {
+         return FALSE;
       }
    }
 }
