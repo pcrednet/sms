@@ -101,6 +101,10 @@ class enviar_sms extends fs_controller
                      {
                         $this->agrega_detalle($servicio);
                      }
+                     else if ($pedido)
+                     {
+                        $this->pedido_observaciones();
+                     }
                   }
                   else
                   {
@@ -181,7 +185,7 @@ class enviar_sms extends fs_controller
          }
          else
          {
-            $this->new_error_msg($result-'<br />'.$url);
+            $this->new_error_msg('<br />'.$url);
          }
       }
       else
@@ -216,12 +220,25 @@ class enviar_sms extends fs_controller
          }
          else
          {
-            $this->new_error_msg($result-'<br />'.$url);
+            $this->new_error_msg('<br />'.$url);
          }
       }
       else
       {
          return FALSE;
+      }
+   }
+   
+   public function pedido_observaciones()
+   {
+      $ped = new pedido_cliente();
+      $pedido = $ped->get($_REQUEST['id']);
+      
+      $detalle = $pedido->observaciones.'SMS enviado correctamente al teléfono: ' . $this->telefono . ' con el texto: ' . $this->mensaje.'. ';
+      $sql = $this->db->exec("UPDATE pedidoscli SET observaciones = '".$detalle."' WHERE idpedido = ".$this->id.";");
+      if ($sql)
+      {
+         $this->new_message('Observaciones guardadas correctamente.');
       }
    }
 }
