@@ -30,120 +30,125 @@ require_model('proveedor_sms.php');
 class proveedores_sms extends fs_controller
 {
 
-    public $allow_delete;
-    public $proveedor_sms;
-    public $resultados;
+   public $allow_delete;
+   public $proveedor_sms;
+   public $resultados;
 
-    public function __construct()
-    {
-        parent::__construct(__CLASS__, 'SMS', 'admin');
-    }
+   public function __construct()
+   {
+      parent::__construct(__CLASS__, 'SMS', 'admin');
+   }
 
-    protected function private_core()
-    {
+   protected function private_core()
+   {
 
-        /// ¿El usuario tiene permiso para eliminar en esta página?
-        $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
+      /// ¿El usuario tiene permiso para eliminar en esta página?
+      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
 
-        $proveedor = new proveedor_sms();
-        $this->resultados = array();
+      $proveedor = new proveedor_sms();
+      $this->resultados = array();
 
-        if (!ini_get('allow_url_fopen'))
-        {
-            $this->new_error_msg('tienes que activar allow_url_fopen en el php.ini. Consulta con tu ISP ');
-        }
+      if (!ini_get('allow_url_fopen'))
+      {
+         $this->new_error_msg('tienes que activar allow_url_fopen en el php.ini. Consulta con tu ISP ');
+      }
 
-        //nuevo proveedor:
-        if (isset($_POST['nuevo']))
-        {
-            $proveedor->descripcion = $_POST['descripcion'];
-            $proveedor->url = $_POST['url'];
-            $proveedor->usuario = $_POST['usuario'];
-            $proveedor->password = $_POST['password'];
-            $proveedor->de = $_POST['de'];
+      //nuevo proveedor:
+      if (isset($_POST['nuevo']))
+      {
+         $proveedor->descripcion = $_POST['descripcion'];
+         $proveedor->url = $_POST['url'];
+         $proveedor->usuario = $_POST['usuario'];
+         $proveedor->password = $_POST['password'];
+         $proveedor->de = $_POST['de'];
+
+         if (isset($_POST['api_id']))
+         {
+            $proveedor->api_id = $_POST['api_id'];
+         }
+
+         if ($proveedor->save())
+         {
+            $this->new_message('Proveedor creado correctamente.');
+         }
+         else
+         {
+            $this->new_error_msg('Error al guardar el proveedor.');
+         }
+         $this->resultados = $proveedor->all();
+      }
+      else if (isset($_REQUEST['idproveedor']))
+      {
+         $this->proveedor_sms = $proveedor->get($_REQUEST['idproveedor']);
+         $this->template = 'editar_proveedor_sms';
+         if (isset($_POST['usuario']))
+         {
+            $this->proveedor_sms->usuario = $_POST['usuario'];
+            $this->proveedor_sms->password = $_POST['password'];
+            $this->proveedor_sms->de = $_POST['de'];
 
             if (isset($_POST['api_id']))
             {
-                $proveedor->api_id = $_POST['api_id'];
+               $this->proveedor_sms->api_id = $_POST['api_id'];
             }
-
-            if ($proveedor->save())
+            if ($this->proveedor_sms->save())
             {
-                $this->new_message('Proveedor creado correctamente.');
+               $this->new_message('Proveedor guardado correctamente.');
             }
             else
             {
-                $this->new_error_msg('Error al guardar el proveedor.');
+               $this->new_error_msg('Error al guardar el proveedor.');
             }
-            $this->resultados = $proveedor->all();
-        }
-        else if (isset($_REQUEST['idproveedor']))
-        {
-            $this->proveedor_sms = $proveedor->get($_REQUEST['idproveedor']);
-            $this->template = 'editar_proveedor_sms';
-            if (isset($_POST['usuario']))
+         }
+      }
+      else if (isset($_GET['delete']))
+      {
+         $prov = $proveedor->get($_GET['delete']);
+         if ($prov)
+         {
+            if ($prov->delete())
             {
-                $this->proveedor_sms->usuario = $_POST['usuario'];
-                $this->proveedor_sms->password = $_POST['password'];
-                $this->proveedor_sms->de = $_POST['de'];
-
-                if (isset($_POST['api_id']))
-                {
-                    $this->proveedor_sms->api_id = $_POST['api_id'];
-                }
-                if ($this->proveedor_sms->save())
-                {
-                    $this->new_message('Proveedor guardado correctamente.');
-                }
-                else
-                {
-                    $this->new_error_msg('Error al guardar el proveedor.');
-                }
+               $this->new_message('Proveedor eliminado correctamente.');
             }
-        }
-        else if (isset($_GET['delete']))
-        {
-            $prov = $proveedor->get($_GET['delete']);
-            if ($prov)
+            else
             {
-                if ($prov->delete())
-                {
-                    $this->new_message('Proveedor eliminado correctamente.');
-                }
-                else
-                {
-                    $this->new_error_msg('Imposible eliminar el proveedor.');
-                }
+               $this->new_error_msg('Imposible eliminar el proveedor.');
             }
+         }
 
-            $this->resultados = $proveedor->all();
-        }
+         $this->resultados = $proveedor->all();
+      }
 
-        $this->resultados = $proveedor->all();
-        $this->share_extensions();
-    }
-    
-    private function share_extensions()
+      $this->resultados = $proveedor->all();
+      $this->share_extensions();
+   }
+
+   private function share_extensions()
    {
-      $fsext2 = new fs_extension();
-      $fsext2->name = 'enviar_sms_servicio';
-      $fsext2->from = 'enviar_sms';
-      $fsext2->to = 'ventas_servicio';
-      $fsext2->type = 'modal';
-      $fsext2->text = '<span class="glyphicon glyphicon-phone" aria-hidden="true"></span>'
-              . '<span class="hidden-xs">&nbsp; SMS</span>';
-      $fsext2->params = '&servicio=TRUE';
-      $fsext2->save();
-
-      $fsext2 = new fs_extension();
-      $fsext2->name = 'enviar_sms_pedido';
-      $fsext2->from = 'enviar_sms';
-      $fsext2->to = 'ventas_pedido';
-      $fsext2->type = 'modal';
-      $fsext2->text = '<span class="glyphicon glyphicon-phone" aria-hidden="true"></span>'
-              . '<span class="hidden-xs">&nbsp; SMS</span>';
-      $fsext2->params = '&pedido=TRUE';
-      $fsext2->save();
+      if (class_exists('servicio_cliente'))
+      {
+         $fsext2 = new fs_extension();
+         $fsext2->name = 'enviar_sms_servicio';
+         $fsext2->from = 'enviar_sms';
+         $fsext2->to = 'ventas_servicio';
+         $fsext2->type = 'modal';
+         $fsext2->text = '<span class="glyphicon glyphicon-phone" aria-hidden="true"></span>'
+                 . '<span class="hidden-xs">&nbsp; SMS</span>';
+         $fsext2->params = '&servicio=TRUE';
+         $fsext2->save();
+      }
+      if (class_exists('pedido_cliente'))
+      {
+         $fsext2 = new fs_extension();
+         $fsext2->name = 'enviar_sms_pedido';
+         $fsext2->from = 'enviar_sms';
+         $fsext2->to = 'ventas_pedido';
+         $fsext2->type = 'modal';
+         $fsext2->text = '<span class="glyphicon glyphicon-phone" aria-hidden="true"></span>'
+                 . '<span class="hidden-xs">&nbsp; SMS</span>';
+         $fsext2->params = '&pedido=TRUE';
+         $fsext2->save();
+      }
    }
 
 }

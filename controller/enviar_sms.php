@@ -32,6 +32,7 @@ require_model('detalle_servicio.php');
  */
 class enviar_sms extends fs_controller
 {
+
    public $cliente;
    public $documento;
    public $documento_url;
@@ -39,28 +40,28 @@ class enviar_sms extends fs_controller
    public $mensaje;
    public $provsms;
    public $telefono;
-   
+
    public function __construct()
    {
       parent::__construct(__CLASS__, 'Enviar SMS', 'ventas', FALSE, FALSE);
    }
-   
+
    protected function private_core()
    {
       $this->provsms = new proveedor_sms;
       $this->documento = FALSE;
       $this->telefono = '';
       $this->mensaje = '';
-      
+
       $this->documento_url = $this->url();
       $cliente = new cliente();
-      
+
       $servicio = FALSE;
-      if( isset($_REQUEST['servicio']) )
+      if (isset($_REQUEST['servicio']))
       {
          $serv = new servicio_cliente();
          $servicio = $serv->get($_REQUEST['id']);
-         if($servicio)
+         if ($servicio)
          {
             $this->cliente = $cliente->get($servicio->codcliente);
             $this->id = $servicio->idservicio;
@@ -68,11 +69,11 @@ class enviar_sms extends fs_controller
             $this->documento_url = $servicio->url();
          }
       }
-      else if( isset($_REQUEST['pedido']) )
+      else if (isset($_REQUEST['pedido']))
       {
          $ped = new pedido_cliente();
          $pedido = $ped->get($_REQUEST['id']);
-         if($pedido)
+         if ($pedido)
          {
             $this->cliente = $cliente->get($pedido->codcliente);
             $this->id = $pedido->idpedido;
@@ -146,7 +147,7 @@ class enviar_sms extends fs_controller
       $detalle->idservicio = $servicio->idservicio;
       $detalle->nick = $this->user->nick;
 
-      if( $detalle->save() )
+      if ($detalle->save())
       {
          $this->new_message('Detalle guardados correctamente.');
       }
@@ -155,7 +156,7 @@ class enviar_sms extends fs_controller
          $this->new_error_msg('Imposible guardar el detalle.');
       }
    }
-   
+
    public function sms_freevoipdeal()
    {
       //para test comentar la otra url
@@ -166,17 +167,17 @@ class enviar_sms extends fs_controller
               . "&from=" . $this->provsms->de
               . "&to=" . $this->telefono
               . "&text=" . rawurlencode($this->mensaje);
-      
+
       $ch = curl_init();
       curl_setopt($ch, CURLOPT_URL, $url);
       curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13");
       curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-      
+
       $result = curl_exec($ch);
       curl_close($ch);
-      
-      
-      if($result)
+
+
+      if ($result)
       {
          if (strpos($result, 'success'))
          {
@@ -185,14 +186,13 @@ class enviar_sms extends fs_controller
          }
          else
          {
-            $this->new_error_msg('<br />'.$url);
+            $this->new_error_msg('<br />' . $url);
          }
       }
       else
       {
          return FALSE;
       }
-         
    }
 
    public function sms_clickatell()
@@ -201,17 +201,17 @@ class enviar_sms extends fs_controller
               . "&password=" . $this->provsms->password
               . "&api_id=" . $this->provsms->api_id
               . "&to=" . $this->telefono
-              . "&text=" . rawurlencode($this->mensaje); 
-      
+              . "&text=" . rawurlencode($this->mensaje);
+
       $ch = curl_init();
       curl_setopt($ch, CURLOPT_URL, $url);
       curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13");
       curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-      
+
       $result = curl_exec($ch);
       curl_close($ch);
-      
-     if($result)
+
+      if ($result)
       {
          if (strpos($result, 'ID'))
          {
@@ -220,7 +220,7 @@ class enviar_sms extends fs_controller
          }
          else
          {
-            $this->new_error_msg('<br />'.$url);
+            $this->new_error_msg('<br />' . $url);
          }
       }
       else
@@ -228,17 +228,18 @@ class enviar_sms extends fs_controller
          return FALSE;
       }
    }
-   
+
    public function pedido_observaciones()
    {
       $ped = new pedido_cliente();
       $pedido = $ped->get($_REQUEST['id']);
-      
-      $detalle = $pedido->observaciones.'SMS enviado correctamente al teléfono: ' . $this->telefono . ' con el texto: ' . $this->mensaje.'. ';
-      $sql = $this->db->exec("UPDATE pedidoscli SET observaciones = '".$detalle."' WHERE idpedido = ".$this->id.";");
+
+      $detalle = $pedido->observaciones . 'SMS enviado correctamente al teléfono: ' . $this->telefono . ' con el texto: ' . $this->mensaje . '. ';
+      $sql = $this->db->exec("UPDATE pedidoscli SET observaciones = '" . $detalle . "' WHERE idpedido = " . $this->id . ";");
       if ($sql)
       {
          $this->new_message('Observaciones guardadas correctamente.');
       }
    }
+
 }
